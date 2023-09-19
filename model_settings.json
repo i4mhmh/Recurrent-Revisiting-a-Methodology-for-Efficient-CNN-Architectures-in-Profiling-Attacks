@@ -1,0 +1,19 @@
+{
+    "ASCAD_N0" : {
+        "model_name" : "ASCAD_N0",
+        "batch_size"  : 50,
+        "learning_rate" : 0.005,
+        "use_1cycle" : "True",
+        "input_size" : 700,
+        "classes" : 256,
+        "epochs" : 50
+    },
+    "ASCAD_N50" : {
+        "model_name" : "ASCAD_N50",
+        "batch_size"  : 50,
+        "learning_rate" : 0.005,
+        "use_1cycle" : "True",
+        "input_size" : 700,
+        "classes" : 256
+    }
+}
