@@ -10,6 +10,7 @@
 from keras.layers import Conv1D, AvgPool1D, BatchNormalization, Dense, Flatten, Input
 from keras.models import Model
 from keras.optimizers import Adam
+from keras.losses import categorical_crossentropy
 
 # For ASCAD N0
 def simple_ascad_n0(input_size, learning_rate, classes):
@@ -30,4 +31,52 @@ def simple_ascad_n0(input_size, learning_rate, classes):
     return model
 
 
+def simple_ascad_n50(input_size, learning_rate, classes):
+    inputs = Input(shape=(input_size, 1))
+
+    x = AvgPool1D(2, 2, name='block1_pool')(inputs)
     
+    x = Conv1D(64, 25, kernel_initializer='he_uniform', activation='selu', padding='same', name='block2_conv')(x)
+    x = BatchNormalization()(x)
+    x = AvgPool1D(25, 25, name='block2_pool')(x)
+
+    x = Conv1D(128, 3, kernel_initializer='he_uniform', activation='selu', padding='same', name='block3_conv')(x)
+    x = BatchNormalization()(x)
+    x = AvgPool1D(4, 4, name='block3_pool')(x)
+
+    # flatten
+    x = Flatten()(x)
+
+    x = Dense(20, kernel_initializer='he_uniform', activation='selu', name='fc1')(x)
+    x = Dense(20, kernel_initializer='he_uniform', activation='selu', name='fc2')(x)
+    x = Dense(20, kernel_initializer='he_uniform', activation='selu', name='fc3')(x)
+    x = Dense(classes, activation='softmax', name='predictions')(x)
+
+    model = Model(inputs, x, name='simple_ascad_n50')
+    model.compile(loss=categorical_crossentropy, optimizer=Adam(learning_rate=learning_rate), metrics=['acc'])
+    return model
+
+def simple_ascad_n100(input_size, learning_rate, classes):
+    inputs = Input(shape=(input_size, 1))
+
+    x = AvgPool1D(2, 2, name='block1_pool')(inputs)
+    
+    x = Conv1D(64, 50, kernel_initializer='he_uniform', activation='selu', padding='same', name='block2_conv')(x)
+    x = BatchNormalization()(x)
+    x = AvgPool1D(50, 50, name='block2_pool')(x)
+
+    x = Conv1D(128, 3, kernel_initializer='he_uniform', activation='selu', padding='same', name='block3_conv')(x)
+    x = BatchNormalization()(x)
+    x = AvgPool1D(2, 2, name='block3_pool')(x)
+
+    # flatten
+    x = Flatten()(x)
+
+    x = Dense(20, kernel_initializer='he_uniform', activation='selu', name='fc1')(x)
+    x = Dense(20, kernel_initializer='he_uniform', activation='selu', name='fc2')(x)
+    x = Dense(20, kernel_initializer='he_uniform', activation='selu', name='fc3')(x)
+    x = Dense(classes, activation='softmax', name='predictions')(x)
+
+    model = Model(inputs, x, name='simple_ascad_n100')
+    model.compile(loss=categorical_crossentropy, optimizer=Adam(learning_rate=learning_rate), metrics=['acc'])
+    return model

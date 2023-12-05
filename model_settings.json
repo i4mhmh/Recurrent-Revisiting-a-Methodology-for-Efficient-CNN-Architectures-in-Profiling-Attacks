@@ -15,5 +15,13 @@
         "use_1cycle" : "True",
         "input_size" : 700,
         "classes" : 256
+    },
+    "ASCAD_N100" : {
+        "model_name" : "ASCAD_N100",
+        "batch_size"  : 50,
+        "learning_rate" : 0.005,
+        "use_1cycle" : "True",
+        "input_size" : 700,
+        "classes" : 256
     }
 }

@@ -51,7 +51,7 @@ AES_sbox_inv=[
     0x17,0x2b,0x04,0x7e,0xba,0x77,0xd6,0x26,0xe1,0x69,0x14,0x63,0x55,0x21,0x0c,0x7d
 ]
 
-# 数据预处理
+# 数据标准化
 def feature_standardization(x_profiling, x_attack):
     st = preprocessing.StandardScaler()
     x_profiling = st.fit_transform(x_profiling)
@@ -59,13 +59,36 @@ def feature_standardization(x_profiling, x_attack):
 
     return x_profiling, x_attack
 
+# 横向标准化
+def horizontal_standardization(x_profiling, x_attack):
+    mn = np.repeat(np.mean(x_profiling, axis=1, keepdims=True), x_profiling.shape[1], axis=1)
+    std = np.repeat(np.std(x_profiling, axis=1, keepdims=True), x_profiling.shape[1], axis=1)
+    x_profiling = (x_profiling - mn)/std
+
+    mn = np.repeat(np.mean(x_attack, axis=1, keepdims=True), x_attack.shape[1], axis=1)
+    std = np.repeat(np.std(x_attack, axis=1, keepdims=True), x_attack.shape[1], axis=1)
+    x_attack = (x_attack - mn)/std
+
+    return x_profiling, x_attack
+
+# 横向缩放(-1, 1)
+def horizontal_scaling_n1_1(x_profiling, x_attack):
+    scaler = preprocessing.MinMaxScaler((-1, 1)).fit(x_profiling.T)
+    x_profiling = scaler.transform(x_profiling.T).T
+
+    scaler = preprocessing.MinMaxScaler((-1, 1)).fit(x_attack.T)
+    x_attack = scaler.transform(x_attack.T).T
+
+    return x_profiling, x_attack
+
+    
 
 # TODO: 这里想写成统一格式,不需要def不同的module来读数据集
 class DataLoder:
     def __init__(self, path):
         self.data_path = path
 
-    def get_ascad_n0(self):
+    def get_ascad(self):
         with h5py.File(self.data_path) as h5f:
             X_profiling = h5f['Profiling_traces/traces'][()]
             Y_profiling = h5f['Profiling_traces/labels'][()]
@@ -91,4 +114,14 @@ class DataLoder:
 
             return X_profiling, Y_profiling, profiling_targets, profiling_key[2], X_attack, attack_targets, attack_key[2]
 
+    def get_dpav4(self):
+        filepath = self.data_path
+        X_profiling = np.load(filepath + '/profiling_traces_dpav4.npy')
+        Y_profiling = np.load(filepath + '/profiling_labels_dpav4.npy')
 
+        X_attack = np.load(filepath + '/attack_traces_dpav4.npy')
+        attack_plaintext = np.load(filepath + '/attack_plaintext_dpav4.npy')
+
+        real_key = np.load(filepath + '/key.npy')
+        mask = np.load(filepath + '/mask.npy')
+        att_offset = np.load(filepath + '/attack_offset_dpav4.npy')
